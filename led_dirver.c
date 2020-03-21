@@ -1,75 +1,51 @@
 #include <led_dirver.h>
 
-RGB_Value  HSV_TO_RGB(HSV_Value * InitValue,RGB_Value * Resault)
+void HSVtoRGB(RGB * RGB,HSV * HSV)
 {
-        float HSV_C,HSV_X,HSV_M,F_abs;
-        float FR,FG,FB;
+    // R,G,B from 0-255, H from 0-360, S,V from 0-100
+    int i;
+    float RGB_min, RGB_max;
+    RGB_max =  HSV->V*2.55f;
+    RGB_min = RGB_max*(100 - HSV->S) / 100.0f;
 
-        HSV_C=InitValue->V*InitValue->S;
+    i = HSV->H / 60;
+    int difs = HSV->H % 60; // factorial part of h
 
-        F_abs=((int)((InitValue->H*10/60))%20)/10-1;
+                       // RGB adjustment amount by hue
+    float RGB_Adj = (RGB_max - RGB_min)*difs / 60.0f;
 
-        if(F_abs>0);
-        else
-         F_abs=-F_abs;
-
-        HSV_X=HSV_C*(1-F_abs);
-
-        HSV_M=InitValue->V-HSV_C;
-
-
-
-        if(InitValue->H >= 0 && InitValue->H < 60)
-        {
-         FR=HSV_C;
-         FG=HSV_X;
-         FB=0;
-        }
-        else if(InitValue->H >= 60 && InitValue->H < 120)
-        {
-         FR=HSV_X;
-         FG=HSV_C;
-         FB=0;
-        }
-
-        else if(InitValue->H >= 120 && InitValue->H < 180)
-        {
-         FR=0;
-         FG=HSV_C;
-         FB=HSV_X;
-        }
-        else if(InitValue->H >= 180 && InitValue->H < 240)
-        {
-         FR=0;
-         FG=HSV_X;
-         FB=HSV_C;
-
-        }
-        else if(InitValue->H >= 240 && InitValue->H < 300)
-        {
-         FR=HSV_X;
-         FG=0;
-         FB=HSV_C;
-        }
-        else if(InitValue->H >= 300 && InitValue->H < 360)
-        {
-         FR=HSV_C;
-         FG=0;
-         FB=HSV_X;
-        }
-        else
-        {
-         FR=HSV_C;
-         FG=HSV_X;
-         FB=0;
-        }
-
-       Resault->Red_Value=   (int)((FR + HSV_M) * 255) ;
-       Resault->Green_Value= (int)((FG + HSV_M) * 255) ;
-       Resault->Blue_Value=  (int)((FB + HSV_M) * 255) ;
-
-        return * Resault;
-
+    switch (i) {
+    case 0:
+        RGB->R = (int)RGB_max;
+        RGB->G = (int)(RGB_min + RGB_Adj);
+        RGB->B = (int)RGB_min;
+        break;
+    case 1:
+        RGB->R = (int)(RGB_max - RGB_Adj);
+        RGB->G = (int)RGB_max;
+        RGB->B = (int)RGB_min;
+        break;
+    case 2:
+        RGB->R = (int)RGB_min;
+        RGB->G = (int)RGB_max;
+        RGB->B = (int)(RGB_min + RGB_Adj);
+        break;
+    case 3:
+        RGB->R = (int)RGB_min;
+        RGB->G = (int)(RGB_max - RGB_Adj);
+        RGB->B = (int)RGB_max;
+        break;
+    case 4:
+        RGB->R = (int)(RGB_min + RGB_Adj);
+        RGB->G = (int)RGB_min;
+        RGB->B = (int)RGB_max;
+        break;
+    default:		// case 5:
+        RGB->R = (int)RGB_max;
+        RGB->G = (int)RGB_min;
+        RGB->B = (int)(RGB_max - RGB_Adj);
+        break;
+    }
 }
 
 int Light_doc_open()
@@ -116,7 +92,7 @@ int Light_doc_open()
 
 }
 
-void Light_reflush(RGB_Value Resault)
+void Light_reflush(RGB * Resault)
 {
     int Get_R_doc=0,Get_G_doc=0,Get_B_doc=0;
     int size_num=0;
@@ -128,35 +104,35 @@ void Light_reflush(RGB_Value Resault)
     if(time_count)
     {
 
-        if(Resault.Red_Value>9)
+        if(Resault->R>9)
             size_num=2;
-        else if(Resault.Red_Value>99)
+        else if(Resault->R>99)
             size_num=3;
         else {
             size_num=1;
         }
 
-        write(Get_R_doc,&Resault.Red_Value,(size_t)size_num);
+        write(Get_R_doc,&Resault->R,(size_t)size_num);
 
-        if(Resault.Blue_Value>9)
+        if(Resault->B>9)
             size_num=2;
-        else if(Resault.Blue_Value>99)
+        else if(Resault->B>99)
             size_num=3;
         else {
             size_num=1;
         }
 
-        write(Get_R_doc,&Resault.Blue_Value,(size_t)size_num);
+        write(Get_R_doc,&Resault->B,(size_t)size_num);
 
-        if(Resault.Green_Value>9)
+        if(Resault->G>9)
             size_num=2;
-        else if(Resault.Green_Value>99)
+        else if(Resault->G>99)
             size_num=3;
         else {
             size_num=1;
         }
 
-        write(Get_R_doc,&Resault.Green_Value,(size_t)size_num);
+        write(Get_R_doc,&Resault->G,(size_t)size_num);
         time_count=0;
     }
 

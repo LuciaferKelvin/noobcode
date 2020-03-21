@@ -17,22 +17,23 @@
 
 
 typedef struct RGB{
-    int Red_Value;
-    int Blue_Value;
-    int Green_Value;
-}RGB_Value;
+    int R;
+    int G;
+    int B;
+}RGB;
 
 typedef struct HSV{
     int H;
-    float S;
-    float V;
-} HSV_Value;
+    int S;
+    int V;
+} HSV;
 
-RGB_Value HSV_TO_RGB(HSV_Value * InitValue,RGB_Value * Resault);
+
+void HSV_TO_RGB(HSV * InitValue,RGB * Resault);
 
 static int time_count = 0;
 
-void Light_reflush(RGB_Value  Resault);
+void Light_reflush(RGB * Resault);
 int Light_doc_open();
 void timer_init();
 void time_resing(int sig);
