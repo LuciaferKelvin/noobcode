@@ -1,5 +1,8 @@
 #include <led_dirver.h>
 
+volatile int TIM1_WOKING[TIM1_MAX] = {0};
+volatile int TIM2_WOKING[TIM2_MAX] = {0};
+
 void HSVtoRGB(RGB * RGB,HSV * HSV)
 {
     // R,G,B from 0-255, H from 0-360, S,V from 0-100
@@ -14,7 +17,8 @@ void HSVtoRGB(RGB * RGB,HSV * HSV)
                        // RGB adjustment amount by hue
     float RGB_Adj = (RGB_max - RGB_min)*difs / 60.0f;
 
-    switch (i) {
+    switch (i)
+    {
     case 0:
         RGB->R = (int)RGB_max;
         RGB->G = (int)(RGB_min + RGB_Adj);
@@ -46,6 +50,7 @@ void HSVtoRGB(RGB * RGB,HSV * HSV)
         RGB->B = (int)(RGB_max - RGB_Adj);
         break;
     }
+    printf("R:%d G:%d B%d",RGB->R,RGB->G,RGB->B);
 }
 
 int Light_doc_open()
@@ -101,9 +106,6 @@ void Light_reflush(RGB * Resault)
     Get_G_doc=open(Red_light_PATH,O_WRONLY);
     Get_B_doc=open(Red_light_PATH,O_WRONLY);
 
-    if(time_count)
-    {
-
         if(Resault->R>9)
             size_num=2;
         else if(Resault->R>99)
@@ -133,14 +135,30 @@ void Light_reflush(RGB * Resault)
         }
 
         write(Get_R_doc,&Resault->G,(size_t)size_num);
-        time_count=0;
-    }
+
 
 }
 
 void time_resing(int sig)
 {
-    time_count=1;
+    static int TIM1_COUNT = 0;
+    TIM1_COUNT ++;
+  //  printf("%d \n",TIM1_COUNT);
+
+    if(TIM1_COUNT == 99)
+    {
+     for(int i = 0 ; i < TIM1_MAX;i++ )
+     {
+         if(TIM1_WOKING[i]<65535)
+             TIM1_WOKING[i]++;
+     }
+     TIM1_COUNT = 0;
+    }
+    for(int j = 0 ; j < TIM2_MAX;j++ )
+    {
+        if(TIM2_WOKING[j]<65535)
+            TIM2_WOKING[j]++;
+    }
 }
 
 void timer_init()
