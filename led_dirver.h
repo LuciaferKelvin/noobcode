@@ -15,6 +15,28 @@
 #define Bule_light_PATH "/sys/class/leds/bule/brightness"
 #define Green_light_PATH "/sys/class/leds/green/brightness"
 
+enum
+{
+    TIM1_WORK = 0,
+    TIM1_LEDS,
+    TIM1_MAX
+};
+
+enum
+{
+    TIM2_WORK = 0,
+    TIM2_MAX
+
+};
+
+#define TIM1_1MS(index,count) (count < TIM1_WOKING[index] ? 1 : 0 )
+#define TIM1_StatusClear(index) (TIM1_WOKING[index]=0)
+
+#define TIM2_1US(index,count) (count < TIM2_WOKING[index] ? 1 : 0 )
+#define TIM2_StatusClear(index) (TIM2_WOKING[index]=0)
+
+extern volatile int TIM1_WOKING[TIM1_MAX];
+extern volatile int TIM2_WOKING[TIM2_MAX];
 
 typedef struct RGB{
     int R;
@@ -29,9 +51,8 @@ typedef struct HSV{
 } HSV;
 
 
-void HSV_TO_RGB(HSV * InitValue,RGB * Resault);
+void HSVtoRGB(RGB * RGB,HSV * HSV);
 
-static int time_count = 0;
 
 void Light_reflush(RGB * Resault);
 int Light_doc_open();
